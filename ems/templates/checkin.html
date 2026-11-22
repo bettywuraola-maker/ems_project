@@ -1,0 +1,30 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf, chip %}
+{% block title %}Check-in{% endblock %}
+{% block body %}
+<h1>Check-in</h1>
+<form method="get" class="card bar-form">
+  <label class="field"><span>Event</span><select name="event" onchange="this.form.submit()">
+    {% for e in events %}<option value="{{ e.event_id }}"{% if e.event_id == event_id %} selected{% endif %}>{{ e.title }}</option>{% endfor %}</select></label>
+  <label class="field"><span>Session</span><select name="session" required>
+    <option value="">Choose a session</option>
+    {% for s in sessions %}<option value="{{ s.session_id }}"{% if s.session_id == session_id %} selected{% endif %}>{{ s.session_date }} {{ s.start_time }} {{ s.title }}</option>{% endfor %}</select></label>
+  <label class="field"><span>Name or registration reference</span><input name="q" value="{{ text }}" autofocus></label>
+  <button class="btn" type="submit">Search</button>
+</form>
+{% if count is not none %}<p><strong>{{ count }}</strong> checked in for this session.
+  {% if event_id %}<a href="{{ url_for('ops.printable_list', event_id=event_id, session=session_id) }}" target="_blank">Print the participant list</a> for use if the network or power fails.{% endif %}</p>{% endif %}
+{% if session_id and text and not results %}<p class="empty">No registration matches "{{ text }}".</p>{% endif %}
+{% for x in results %}{% set r = x.r %}
+<section class="card row">
+  <div><strong>{{ r.surname }} {{ r.other_names }}</strong><br><span class="muted">{{ r.organisation }} &middot; {{ r.registration_ref }}</span><br>
+    {{ chip(r.status) }}{% if r.payment_status %} payment {{ chip(r.payment_status) }}{% endif %}</div>
+  <div class="right">
+  {% if x.done %}<span class="chip chip-confirmed">Checked in</span>
+  {% else %}
+  <form method="post">{{ csrf() }}<input type="hidden" name="registration_id" value="{{ r.registration_id }}">
+    <input type="hidden" name="session_id" value="{{ session_id }}"><input type="hidden" name="event" value="{{ event_id }}"><input type="hidden" name="q" value="{{ text }}">
+    <button class="btn" type="submit">Check in</button></form>{% endif %}
+  </div>
+</section>
+{% endfor %}
+{% endblock %}

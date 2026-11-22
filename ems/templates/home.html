@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block body %}
+<h1>Conferences and conventions at the University of Ibadan</h1>
+<p class="lead">Register, pay, check in and collect your certificate in one place.</p>
+{% if not events %}<p class="empty">No event is open for registration yet. Check back soon.</p>{% endif %}
+<div class="list">
+{% for e in events %}
+  <a class="row" href="{{ url_for('public.event', event_id=e.event_id) }}">
+    <div><strong>{{ e.title }}</strong><br><span class="muted">{{ e.start_date }}{% if e.end_date != e.start_date %} to {{ e.end_date }}{% endif %}</span></div>
+    <div class="right">{% if e.registration_fee|float == 0 %}Free{% else %}{{ e.registration_fee|naira }}{% endif %}<br><span class="muted">{{ e.n }} registered</span></div>
+  </a>
+{% endfor %}
+</div>
+{% endblock %}

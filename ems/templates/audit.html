@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Audit trail{% endblock %}
+{% block body %}
+<h1>Audit trail</h1>
+<p class="muted">Payment verification, attendance, certificate issue, cancellations and waivers. Last 200 entries.</p>
+<div class="scroll"><table class="tbl"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Record</th></tr></thead><tbody>
+{% for a in rows %}<tr><td>{{ a.logged_at }}</td><td>{{ a.full_name }}</td><td>{{ a.action }}</td><td>{{ a.target_table }} #{{ a.target_id }}</td></tr>{% else %}<tr><td colspan="4" class="empty">Nothing logged yet.</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

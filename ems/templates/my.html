@@ -1,0 +1,25 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf, chip %}
+{% block title %}My registrations{% endblock %}
+{% block body %}
+<h1>My registrations</h1>
+{% if not regs %}<p class="empty">You have not registered for an event yet. <a href="{{ url_for('public.home') }}">Browse events</a></p>{% endif %}
+{% for x in regs %}{% set r = x.r %}
+<section class="card">
+  <h2><a href="{{ url_for('public.event', event_id=r.event_id) }}">{{ r.title }}</a></h2>
+  <p>Reference <strong>{{ r.registration_ref }}</strong> {{ chip(r.status) }} &middot; Fee {% if r.registration_fee|float == 0 %}free{% else %}{{ r.registration_fee|naira }}{% endif %}</p>
+  {% for p in x.payments %}
+    <p class="muted">Payment {{ p.amount|naira }} by {{ p.method }} {{ chip(p.status) }}{% if p.note and p.status in ('Failed','Waived') %} ({{ p.note }}){% endif %}
+    {% if p.receipt_no %} &middot; <a href="{{ url_for('public.receipt', payment_id=p.payment_id) }}">Download receipt {{ p.receipt_no }}</a>{% endif %}</p>
+  {% endfor %}
+  {% if x.can_pay %}
+  <form method="post" action="{{ url_for('public.pay', reg_id=r.registration_id) }}" enctype="multipart/form-data" class="stack">{{ csrf() }}
+    <p>Pay {{ r.registration_fee|naira }} by bank transfer, then enter the transfer reference. A Finance Officer will verify it.</p>
+    <label class="field"><span>Transfer reference *</span><input name="reference" required minlength="4"></label>
+    <label class="field"><span>Evidence (PNG, JPG or PDF, optional)</span><input type="file" name="evidence" accept=".png,.jpg,.jpeg,.pdf"></label>
+    <button class="btn" type="submit">Submit payment</button>
+  </form>
+  {% endif %}
+  {% if x.cert %}<p><a class="btn" href="{{ url_for('public.certificate', reg_id=r.registration_id) }}">Download certificate</a> <span class="muted">{{ x.cert.certificate_no }}</span></p>{% endif %}
+</section>
+{% endfor %}
+{% endblock %}

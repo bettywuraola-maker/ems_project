@@ -1,0 +1,19 @@
+{% extends 'base.html' %}{% from '_macros.html' import chip %}
+{% block title %}Dashboard{% endblock %}
+{% block body %}
+<h1>Dashboard</h1>
+{% if not events %}<p class="empty">No events yet. <a href="{{ url_for('admin.events') }}">Create the first event</a></p>{% else %}
+<form method="get" class="card bar-form"><label class="field"><span>Event</span><select name="event" onchange="this.form.submit()">
+ {% for e in events %}<option value="{{ e.event_id }}"{% if e.event_id == event_id %} selected{% endif %}>{{ e.title }}</option>{% endfor %}</select></label></form>
+<div class="stats">
+ <div><b>{{ stats.registrations }}</b>registrations</div><div><b>{{ stats.confirmed }}</b>confirmed</div>
+ <div><b>{{ stats.pending }}</b>pending</div><div><b>{{ stats.paid_total|naira }}</b>verified payments</div>
+ <div><b>{{ stats.attended }}</b>attended at least once</div><div><b>{{ stats.certificates }}</b>certificates</div>
+</div>
+<p><a class="btn" href="{{ url_for('admin.event', event_id=event_id) }}">Manage this event</a>
+ <a class="btn ghost" href="{{ url_for('ops.participants', event=event_id) }}">Participants</a></p>
+<h2>Payments awaiting verification ({{ stats.pending_payments }})</h2>
+{% if not pending %}<p class="empty">None. The Finance Officer verifies payments.</p>{% endif %}
+{% for p in pending %}<p class="row">{{ p.surname }} {{ p.other_names }} &middot; {{ p.registration_ref }}<span class="right">{{ p.amount|naira }}</span></p>{% endfor %}
+{% endif %}
+{% endblock %}

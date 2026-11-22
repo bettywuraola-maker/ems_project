@@ -1,0 +1,9 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf, input %}
+{% block title %}Venues{% endblock %}
+{% block body %}
+<h1>Venues</h1>
+{% for v in venues %}<p class="row"><span><strong>{{ v.name }}</strong><br><span class="muted">{{ v.location }}</span></span><span class="right">{% if v.capacity %}Seats {{ v.capacity }}{% endif %}</span></p>{% else %}<p class="empty">No venues yet.</p>{% endfor %}
+<h2>Add a venue</h2>
+<form method="post" class="card">{{ csrf() }}<div class="grid2">{{ input('name', 'Venue name') }}{{ input('location', 'Location', required=False) }}{{ input('capacity', 'Capacity', type='number', required=False) }}</div>
+<button class="btn" type="submit">Add venue</button></form>
+{% endblock %}

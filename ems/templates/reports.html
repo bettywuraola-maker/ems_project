@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Reports{% endblock %}
+{% block body %}
+<h1>Reports</h1>
+{% if not events %}<p class="empty">No events yet.</p>{% else %}
+<form method="get" class="card bar-form"><label class="field"><span>Event</span><select name="event" onchange="this.form.submit()">
+ {% for e in events %}<option value="{{ e.event_id }}"{% if e.event_id == event_id %} selected{% endif %}>{{ e.title }}</option>{% endfor %}</select></label></form>
+<h2>Payments</h2>
+<div class="stats"><div><b>{{ stats.paid_total|naira }}</b>verified</div><div><b>{{ stats.pending_payments }}</b>awaiting verification</div></div>
+<div class="scroll"><table class="tbl"><thead><tr><th>Method</th><th>Status</th><th>Count</th><th>Total</th></tr></thead><tbody>
+{% for m in by_method %}<tr><td>{{ m.method }}</td><td>{{ m.status }}</td><td>{{ m.n }}</td><td>{{ m.total|naira }}</td></tr>{% else %}<tr><td colspan="4" class="empty">No payments yet.</td></tr>{% endfor %}</tbody></table></div>
+<p><a href="{{ url_for('admin.export', event_id=event_id, kind='payments') }}">Download payments (CSV)</a></p>
+{% if role == 'Administrator' %}
+<h2>Registrations</h2>
+<div class="stats"><div><b>{{ stats.registrations }}</b>total</div><div><b>{{ stats.confirmed }}</b>confirmed</div><div><b>{{ stats.pending }}</b>pending</div><div><b>{{ stats.cancelled }}</b>cancelled</div></div>
+<p><a href="{{ url_for('admin.export', event_id=event_id, kind='registrations') }}">Download participants and registrations (CSV)</a></p>
+<h2>Attendance by session</h2>
+<div class="scroll"><table class="tbl"><thead><tr><th>Session</th><th>Date</th><th>Checked in</th></tr></thead><tbody>
+{% for a in attendance %}<tr><td>{{ a.title }}</td><td>{{ a.session_date }}</td><td>{{ a.n }}</td></tr>{% endfor %}</tbody></table></div>
+<p>Use these counts to plan food and seating. <a href="{{ url_for('admin.export', event_id=event_id, kind='attendance') }}">Download attendance (CSV)</a></p>
+<h2>Certificates</h2>
+<p>{{ stats.certificates }} issued. <a href="{{ url_for('admin.export', event_id=event_id, kind='certificates') }}">Download certificate list (CSV)</a></p>
+{% endif %}{% endif %}
+{% endblock %}

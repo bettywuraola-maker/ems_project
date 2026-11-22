@@ -1,0 +1,22 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf, input, choose %}
+{% block title %}Register{% endblock %}
+{% block body %}
+<h1>{% if behalf %}Register someone on their behalf{% else %}Register{% endif %}</h1>
+<p class="muted">{{ ev.title }} &middot; Fee: {% if ev.registration_fee|float == 0 %}Free{% else %}{{ ev.registration_fee|naira }}{% endif %}</p>
+<form method="post" class="card">{{ csrf() }}
+  <div class="grid2">
+    {{ input('surname', 'Surname', v.surname) }}
+    {{ input('other_names', 'Other names', v.other_names) }}
+    {{ choose('gender', 'Gender', ['Female','Male','Other'], v.gender) }}
+    {{ input('organisation', 'Organisation', v.organisation) }}
+    {{ input('level_cadre', 'Level or cadre', v.level_cadre) }}
+    {{ choose('membership_status', 'Professional membership status', ['Member','Non-member','Student member'], v.membership_status) }}
+    {{ input('email', 'Email', v.email, type='email', readonly=(not behalf)) }}
+    {{ input('phone', 'Phone number', v.phone, type='tel') }}
+    {{ input('purpose', 'Purpose of attending', v.purpose, required=False) }}
+    {{ input('expected_days', 'Expected days of stay', v.expected_days, type='number', required=False) }}
+    {% for f in fields %}{{ input('field_' ~ f.field_id, f.field_name, v['field_' ~ f.field_id], required=(f.is_required == 1)) }}{% endfor %}
+  </div>
+  <button class="btn" type="submit">Submit registration</button>
+</form>
+{% endblock %}

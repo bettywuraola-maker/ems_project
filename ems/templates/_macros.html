@@ -1,0 +1,12 @@
+{% macro csrf() %}<input type="hidden" name="csrf" value="{{ csrf_token() }}">{% endmacro %}
+{% macro chip(s) %}<span class="chip chip-{{ s|lower|replace(' ','-') }}">{{ s }}</span>{% endmacro %}
+{% macro input(name, label, value='', type='text', required=True, readonly=False, help='') -%}
+<label class="field"><span>{{ label }}{% if required %} *{% endif %}</span>
+<input name="{{ name }}" type="{{ type }}" value="{{ value if value is not none else '' }}"{% if required %} required{% endif %}{% if readonly %} readonly{% endif %}>
+{% if help %}<small>{{ help }}</small>{% endif %}</label>
+{%- endmacro %}
+{% macro choose(name, label, options, value='', required=True) -%}
+<label class="field"><span>{{ label }}{% if required %} *{% endif %}</span>
+<select name="{{ name }}"{% if required %} required{% endif %}><option value="">Choose</option>
+{% for o in options %}<option{% if o == value %} selected{% endif %}>{{ o }}</option>{% endfor %}</select></label>
+{%- endmacro %}

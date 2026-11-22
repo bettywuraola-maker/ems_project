@@ -1,0 +1,11 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf, input %}
+{% block title %}Log in{% endblock %}
+{% block body %}
+<h1>Log in</h1>
+<form method="post" class="card narrow">{{ csrf() }}
+  {{ input('email', 'Email', type='email') }}
+  {{ input('password', 'Password', type='password') }}
+  <button class="btn" type="submit">Log in</button>
+  <p class="muted">New here? <a href="{{ url_for('public.signup') }}">Create an account</a></p>
+</form>
+{% endblock %}

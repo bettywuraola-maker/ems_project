@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Participant list{% endblock %}
+{% block body %}
+<h1>{{ ev.title }}: participant list</h1>
+<p class="muted">{% if sess %}{{ sess.title }}, {{ sess.session_date }} {{ sess.start_time }}{% endif %} Confirmed registrations only. Tick on paper, then enter the attendance when the network returns.</p>
+<p class="noprint"><button class="btn" onclick="window.print()">Print</button></p>
+<table class="tbl"><thead><tr><th>Surname</th><th>Other names</th><th>Organisation</th><th>Reference</th><th>Present</th></tr></thead>
+<tbody>{% for r in rows %}<tr><td>{{ r.surname }}</td><td>{{ r.other_names }}</td><td>{{ r.organisation }}</td><td>{{ r.registration_ref }}</td><td class="tick"></td></tr>{% endfor %}</tbody></table>
+{% endblock %}

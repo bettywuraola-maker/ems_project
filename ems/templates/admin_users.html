@@ -1,0 +1,18 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf, input, chip %}
+{% block title %}Users and roles{% endblock %}
+{% block body %}
+<h1>Users and roles</h1>
+<div class="scroll"><table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody>
+{% for u in users %}<tr><td>{{ u.full_name }}</td><td>{{ u.email }}</td><td colspan="3">
+ <form method="post" action="{{ url_for('admin.user_update', user_id=u.user_id) }}" class="bar-form">{{ csrf() }}
+  <select name="role">{% for r in roles %}<option{% if r == u.role_name %} selected{% endif %}>{{ r }}</option>{% endfor %}</select>
+  <label class="check"><input type="checkbox" name="disable" value="1"{% if u.status == 'Disabled' %} checked{% endif %}> Disabled</label>
+  <button class="btn small ghost" type="submit">Save</button></form></td></tr>{% endfor %}
+</tbody></table></div>
+<p class="muted">Accounts are disabled, never deleted, so records stay intact.</p>
+<h2>Create an account</h2>
+<form method="post" class="card">{{ csrf() }}<div class="grid2">
+ {{ input('full_name', 'Full name') }}{{ input('email', 'Email', type='email') }}{{ input('password', 'Temporary password', type='password', help='At least 8 characters.') }}
+ <label class="field"><span>Role *</span><select name="role">{% for r in roles %}<option>{{ r }}</option>{% endfor %}</select></label></div>
+<button class="btn" type="submit">Create account</button></form>
+{% endblock %}

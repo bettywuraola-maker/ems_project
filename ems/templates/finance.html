@@ -1,0 +1,35 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf, chip %}
+{% block title %}Payments{% endblock %}
+{% block body %}
+<h1>Payments</h1>
+<h2>Awaiting verification ({{ pending|length }})</h2>
+{% if not pending %}<p class="empty">Nothing to verify right now.</p>{% endif %}
+{% for p in pending %}
+<section class="card row">
+  <div><strong>{{ p.surname }} {{ p.other_names }}</strong> &middot; {{ p.registration_ref }}<br>
+   {{ p.amount|naira }} by {{ p.method }}, reference <strong>{{ p.reference or '-' }}</strong><br><span class="muted">{{ p.title }}{% if p.evidence %} &middot; evidence uploaded{% endif %}</span></div>
+  <div class="right acts">
+   <form method="post" action="{{ url_for('ops.verify', payment_id=p.payment_id) }}">{{ csrf() }}<button class="btn small" type="submit">Verify</button></form>
+   <form method="post" action="{{ url_for('ops.reject', payment_id=p.payment_id) }}">{{ csrf() }}<input type="hidden" name="note" value="Evidence did not match the bank record."><button class="btn small danger" type="submit">Reject</button></form>
+  </div>
+</section>{% endfor %}
+
+<h2>Record a payment</h2>
+<form method="post" action="{{ url_for('ops.record') }}" class="card">{{ csrf() }}
+ <div class="grid2">
+  <label class="field"><span>Registration reference *</span><input name="registration_ref" required></label>
+  <label class="field"><span>Amount (NGN) *</span><input name="amount" type="number" step="0.01" min="0.01" required></label>
+  <label class="field"><span>Method *</span><select name="method"><option>Cash</option><option>Bank transfer</option></select></label>
+  <label class="field"><span>Transfer reference</span><input name="reference"></label>
+  <label class="field"><span>Note</span><input name="note"></label>
+ </div>
+ <p class="muted">Cash is receipted immediately. A bank transfer stays Pending until you verify it above.</p>
+ <button class="btn" type="submit">Record payment</button>
+</form>
+
+<h2>Recently handled</h2>
+<div class="scroll"><table class="tbl"><thead><tr><th>Name</th><th>Reference</th><th>Amount</th><th>Method</th><th>Status</th><th>Receipt</th></tr></thead><tbody>
+{% for p in recent %}<tr><td>{{ p.surname }} {{ p.other_names }}</td><td>{{ p.registration_ref }}</td><td>{{ p.amount|naira }}</td><td>{{ p.method }}</td><td>{{ chip(p.status) }}</td>
+<td>{% if p.receipt_no %}<a href="{{ url_for('public.receipt', payment_id=p.payment_id) }}">{{ p.receipt_no }}</a>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

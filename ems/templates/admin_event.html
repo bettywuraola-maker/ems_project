@@ -1,0 +1,81 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf, input, chip %}
+{% block title %}{{ ev.title }}{% endblock %}
+{% block body %}
+<h1>{{ ev.title }}</h1>
+<p>{{ chip(ev.status) }} <a href="{{ url_for('public.event', event_id=ev.event_id) }}">Public page</a> &middot;
+ <a href="{{ url_for('ops.participants', event=ev.event_id) }}">{{ stats.registrations }} registrations</a> &middot;
+ <a href="{{ url_for('ops.printable_list', event_id=ev.event_id) }}" target="_blank">Printable list</a></p>
+
+<h2>Event details</h2>
+<form method="post" action="{{ url_for('admin.event_update', event_id=ev.event_id) }}" class="card">{{ csrf() }}
+ <div class="grid2">
+  {{ input('title', 'Title', ev.title) }}
+  {{ input('registration_fee', 'Registration fee (NGN)', ev.registration_fee, type='number') }}
+  {{ input('start_date', 'Start date', ev.start_date, type='date') }}
+  {{ input('end_date', 'End date', ev.end_date, type='date') }}
+  {{ input('min_sessions', 'Minimum sessions for a certificate', ev.min_sessions_for_certificate, type='number', required=False) }}
+  <label class="field"><span>Status</span><select name="status">{% for s in ['Draft','Open','Closed','Archived'] %}<option{% if s == ev.status %} selected{% endif %}>{{ s }}</option>{% endfor %}</select></label>
+ </div>
+ <label class="field"><span>Description</span><textarea name="description" rows="3">{{ ev.description or '' }}</textarea></label>
+ <button class="btn" type="submit">Save event</button>
+</form>
+
+<h2>Extra registration fields</h2>
+<p class="muted">Health-related fields such as genotype should be optional and used only when the event needs them.</p>
+{% for f in fields %}<p class="row">{{ f.field_name }}<span class="right">{{ 'Required' if f.is_required else 'Optional' }}</span></p>{% endfor %}
+<form method="post" action="{{ url_for('admin.field_add', event_id=ev.event_id) }}" class="card bar-form">{{ csrf() }}
+ <label class="field"><span>Field name</span><input name="field_name" required></label>
+ <label class="check"><input type="checkbox" name="is_required" value="1"> Required</label>
+ <button class="btn" type="submit">Add field</button>
+</form>
+
+<h2>Programme</h2>
+{% for s in sessions %}
+<section class="card">
+ <form method="post" action="{{ url_for('admin.session_update', session_id=s.session_id) }}" class="bar-form">{{ csrf() }}
+  <div class="grow"><strong>{{ s.title }}</strong></div>
+  <label class="field"><span>Venue</span><select name="venue_id">{% for v in venues %}<option value="{{ v.venue_id }}"{% if v.venue_id == s.venue_id %} selected{% endif %}>{{ v.name }}</option>{% endfor %}</select></label>
+  <label class="field"><span>Date</span><input type="date" name="session_date" value="{{ s.session_date }}" required></label>
+  <label class="field"><span>Start</span><input type="time" name="start_time" value="{{ s.start_time }}" required></label>
+  <label class="field"><span>End</span><input type="time" name="end_time" value="{{ s.end_time }}" required></label>
+  <button class="btn small" type="submit">Save</button>
+ </form>
+ <p class="muted">Speakers:
+  {% for sp in assigned[s.session_id] %}
+   <form method="post" class="inline" action="{{ url_for('admin.unassign', session_id=s.session_id, speaker_id=sp.speaker_id) }}">{{ csrf() }}{{ sp.name }} <button class="link" type="submit" title="Remove">remove</button></form>{% if not loop.last %}, {% endif %}
+  {% else %}none yet{% endfor %}</p>
+ <form method="post" action="{{ url_for('admin.assign', session_id=s.session_id) }}" class="bar-form">{{ csrf() }}
+  <label class="field"><span>Assign speaker or guest</span><select name="speaker_id" required><option value="">Choose</option>{% for sp in speakers %}<option value="{{ sp.speaker_id }}">{{ sp.name }} ({{ sp.role_type }})</option>{% endfor %}</select></label>
+  <button class="btn small ghost" type="submit">Assign</button>
+ </form>
+</section>
+{% else %}<p class="empty">No sessions yet.</p>{% endfor %}
+
+<h3>Add a session</h3>
+<form method="post" action="{{ url_for('admin.session_add', event_id=ev.event_id) }}" class="card">{{ csrf() }}
+ <div class="grid2">
+  {{ input('title', 'Session title') }}
+  <label class="field"><span>Venue *</span><select name="venue_id" required><option value="">Choose</option>{% for v in venues %}<option value="{{ v.venue_id }}">{{ v.name }}{% if v.capacity %} (seats {{ v.capacity }}){% endif %}</option>{% endfor %}</select></label>
+  {{ input('session_date', 'Date', type='date') }}
+  {{ input('start_time', 'Start time', type='time') }}
+  {{ input('end_time', 'End time', type='time') }}
+ </div>
+ <button class="btn" type="submit">Add session</button>
+</form>
+
+<h2>Announcements</h2>
+<form method="post" action="{{ url_for('admin.announce', event_id=ev.event_id) }}" class="card">{{ csrf() }}
+ <div class="grid2">
+  {{ input('subject', 'Subject') }}
+  <label class="field"><span>Send to</span><select name="audience"><option value="participants">Registered participants</option><option value="speakers">Speakers and guests</option><option value="both">Both</option></select></label>
+  <label class="field"><span>Channel</span><select name="channel"><option>Email</option><option>SMS</option></select></label>
+ </div>
+ <label class="field"><span>Message *</span><textarea name="message" rows="3" required></textarea></label>
+ <button class="btn" type="submit">Send announcement</button>
+</form>
+{% for n in sent %}<p class="row"><span>{{ n.subject }} <span class="muted">({{ n.channel }}, {{ n.n_to }} recipients)</span></span><span class="right muted">{{ n.sent_at }}</span></p>{% endfor %}
+
+<h2>Certificates</h2>
+<p>{{ stats.certificates }} issued. Eligible: payment verified or waived{% if ev.min_sessions_for_certificate %} and at least {{ ev.min_sessions_for_certificate }} session(s) attended{% endif %}. Cancelled registrations never receive one.</p>
+<form method="post" action="{{ url_for('admin.certificates', event_id=ev.event_id) }}">{{ csrf() }}<button class="btn" type="submit">Generate certificates</button></form>
+{% endblock %}

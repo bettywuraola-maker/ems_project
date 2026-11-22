@@ -1,0 +1,12 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf, input %}
+{% block title %}Create account{% endblock %}
+{% block body %}
+<h1>Create an account</h1>
+<form method="post" class="card narrow">{{ csrf() }}
+  {{ input('full_name', 'Full name') }}
+  {{ input('email', 'Email', type='email', help='One account per email address.') }}
+  {{ input('password', 'Password', type='password', help='At least 8 characters.') }}
+  {{ input('confirm', 'Confirm password', type='password') }}
+  <button class="btn" type="submit">Create account</button>
+</form>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block title %}Past events{% endblock %}
+{% block body %}
+<h1>Past events</h1>
+{% for e, s in rows %}<a class="row" href="{{ url_for('admin.event', event_id=e.event_id) }}"><div><strong>{{ e.title }}</strong><br><span class="muted">{{ e.start_date }} to {{ e.end_date }}</span></div>
+<div class="right">{{ s.registrations }} registered<br><span class="muted">{{ s.attended }} attended &middot; {{ s.certificates }} certificates &middot; {{ s.paid_total|naira }}</span></div></a>
+{% else %}<p class="empty">No past events yet. Closed or archived events and events that have ended appear here.</p>{% endfor %}
+{% endblock %}

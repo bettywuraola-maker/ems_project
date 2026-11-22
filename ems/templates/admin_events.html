@@ -1,0 +1,19 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf, input, chip %}
+{% block title %}Manage events{% endblock %}
+{% block body %}
+<h1>Manage events</h1>
+<div class="list">{% for e in events %}<a class="row" href="{{ url_for('admin.event', event_id=e.event_id) }}"><div><strong>{{ e.title }}</strong><br><span class="muted">{{ e.start_date }} to {{ e.end_date }}</span></div><div class="right">{{ chip(e.status) }}<br><span class="muted">{{ e.n }} registered</span></div></a>{% endfor %}</div>
+<h2>Create an event</h2>
+<form method="post" class="card">{{ csrf() }}
+ <div class="grid2">
+  {{ input('title', 'Title') }}
+  {{ input('registration_fee', 'Registration fee (NGN, 0 for free)', '0', type='number') }}
+  {{ input('start_date', 'Start date', type='date') }}
+  {{ input('end_date', 'End date', type='date') }}
+  {{ input('min_sessions', 'Minimum sessions for a certificate', required=False, type='number') }}
+  <label class="field"><span>Status</span><select name="status"><option>Draft</option><option>Open</option><option>Closed</option><option>Archived</option></select></label>
+ </div>
+ <label class="field"><span>Description</span><textarea name="description" rows="3"></textarea></label>
+ <button class="btn" type="submit">Create event</button>
+</form>
+{% endblock %}

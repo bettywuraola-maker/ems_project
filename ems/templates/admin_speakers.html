@@ -1,0 +1,15 @@
+{% extends 'base.html' %}{% from '_macros.html' import csrf, input %}
+{% block title %}Speakers and guests{% endblock %}
+{% block body %}
+<h1>Speakers and guests</h1>
+{% for s in speakers %}<section class="card"><strong>{{ s.name }}</strong> <span class="muted">{{ s.role_type }}</span><br>{{ s.biodata or '' }}{% if s.biography %}<p>{{ s.biography }}</p>{% endif %}<span class="muted">{{ s.email or '' }} {{ s.phone or '' }}</span></section>{% else %}<p class="empty">No profiles yet.</p>{% endfor %}
+<h2>Add a profile</h2>
+<form method="post" class="card">{{ csrf() }}<div class="grid2">
+ {{ input('name', 'Name') }}
+ <label class="field"><span>Role *</span><select name="role_type"><option>Speaker</option><option>Guest</option></select></label>
+ {{ input('biodata', 'Bio-data (short)', required=False) }}
+ {{ input('email', 'Email', type='email', required=False) }}
+ {{ input('phone', 'Phone', required=False) }}</div>
+ <label class="field"><span>Biography</span><textarea name="biography" rows="3"></textarea></label>
+<button class="btn" type="submit">Save profile</button></form>
+{% endblock %}

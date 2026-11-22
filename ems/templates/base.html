@@ -1,0 +1,56 @@
+{% from '_macros.html' import csrf %}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Events{% endblock %} | UI Events</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="top">
+  <div class="bar">
+    <a class="brand" href="{{ url_for('public.home') }}">UI Events</a>
+    <nav>
+      <a href="{{ url_for('public.home') }}">Events</a>
+      {% if role == 'Participant' %}
+        <a href="{{ url_for('public.my') }}">My registrations</a>
+        <a href="{{ url_for('public.notifications') }}">Notifications</a>
+      {% elif role == 'Event Staff' %}
+        <a href="{{ url_for('ops.checkin') }}">Check-in</a>
+        <a href="{{ url_for('ops.participants') }}">Participants</a>
+      {% elif role == 'Finance Officer' %}
+        <a href="{{ url_for('ops.finance') }}">Payments</a>
+        <a href="{{ url_for('ops.participants') }}">Participants</a>
+        <a href="{{ url_for('admin.reports') }}">Reports</a>
+      {% elif role == 'Administrator' %}
+        <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('admin.events') }}">Manage events</a>
+        <a href="{{ url_for('ops.participants') }}">Participants</a>
+        <a href="{{ url_for('admin.venues') }}">Venues</a>
+        <a href="{{ url_for('admin.speakers') }}">Speakers</a>
+        <a href="{{ url_for('admin.reports') }}">Reports</a>
+        <a href="{{ url_for('admin.past') }}">Past events</a>
+        <a href="{{ url_for('admin.users') }}">Users</a>
+        <a href="{{ url_for('admin.audit') }}">Audit trail</a>
+      {% endif %}
+      {% if g.user %}
+        <form method="post" action="{{ url_for('public.logout') }}" class="inline">{{ csrf() }}
+          <button class="link" type="submit">Log out ({{ g.user.full_name.split()[0] }})</button></form>
+      {% else %}
+        <a href="{{ url_for('public.login') }}">Log in</a>
+        <a href="{{ url_for('public.signup') }}">Create account</a>
+      {% endif %}
+    </nav>
+  </div>
+  <div class="adire" aria-hidden="true"></div>
+</header>
+<main>
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% for cat, m in msgs %}<p class="flash flash-{{ cat }}" role="status">{{ m }}</p>{% endfor %}
+  {% endwith %}
+  {% block body %}{% endblock %}
+</main>
+<footer>University of Ibadan event management prototype. CSC 302 group project.</footer>
+</body>
+</html>

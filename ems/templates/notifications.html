@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block title %}Notifications{% endblock %}
+{% block body %}
+<h1>Notifications</h1>
+{% if not items %}<p class="empty">No messages yet. Announcements and programme changes appear here.</p>{% endif %}
+{% for n in items %}<section class="card"><strong>{{ n.subject }}</strong><p>{{ n.message }}</p><p class="muted">{{ n.title }} &middot; {{ n.sent_at }}</p></section>{% endfor %}
+{% endblock %}
